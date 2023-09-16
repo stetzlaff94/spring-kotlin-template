@@ -49,7 +49,7 @@ ingress:
   hosts:
     - host: api.stephentetzlaff.com
       paths:
-        - "/demo"
+        - "/example"
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
