@@ -1,0 +1,87 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Login to AWS
+        id: login-aws
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Build Docker Image
+        run: |
+          ./gradlew jibDockerBuild
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        id: build-image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: "demo"
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker tag demo:0.0.1-SNAPSHOT  $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker tag demo:0.0.1-SNAPSHOT  $REGISTRY/$REPOSITORY:latest
+          docker push $REGISTRY/$REPOSITORY --all-tags
+          echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Setup kubectl
+        run: |
+          mkdir ~/.kube
+          touch ~/.kube/config
+          echo ${{ secrets.KUBE_CONFIG }} | base64 --decode > ~/.kube/config
+
+      - name: Generate Token
+        id: generate-token
+        shell: bash
+        run: |
+          TOKEN=$(./.github/actions/generate_docker_json.sh ${{ secrets.AWS_URL }})
+          echo "token=${TOKEN}" >> $GITHUB_OUTPUT
+
+      - name: run terraform plan
+        id: terraform-plan
+        env:
+          TF_VAR_image_name: "${{ steps.login-ecr.outputs.registry }}/demo"
+          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_image_pull_secret: ${{ steps.generate-token.outputs.token }}
+        run: |
+          cd k8s
+          terraform init
+          terraform refresh
+          terraform plan --out=plan.out
+
+      - name: run terraform apply
+        id: terraform-apply
+        env:
+          TF_VAR_image_name: $REGISTRY/$REPOSITORY
+          TF_VAR_image_tag: $IMAGE_TAG"
+          TF_VAR_image_pull_secret: ${{ steps.generate-token.outputs.token }}
+        run: |
+          cd k8s
+          terraform apply "plan.out"
+
+          
+      
+
