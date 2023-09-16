@@ -14,7 +14,7 @@ terraform {
 }
 
 resource "helm_release" "k8s_template" {
-  name       = "demo"
+  name       = "spring-kt-demo"
   chart      = "./demo"
 
   set {
