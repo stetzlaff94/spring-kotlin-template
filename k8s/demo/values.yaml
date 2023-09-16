@@ -15,7 +15,7 @@ image:
 
 
 imagePullSecrets:
-  - name: "ecr-registry-secret-demo"
+  - name: "ecr-registry-secret-spring-kt"
 nameOverride: ""
 fullnameOverride: ""
 
