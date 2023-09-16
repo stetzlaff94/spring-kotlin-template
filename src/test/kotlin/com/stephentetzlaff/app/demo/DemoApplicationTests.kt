@@ -1,4 +1,4 @@
-package com.stephentetzlaff.demo
+package com.stephentetzlaff.app.demo
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

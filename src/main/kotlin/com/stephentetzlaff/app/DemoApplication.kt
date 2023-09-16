@@ -1,4 +1,4 @@
-package com.stephentetzlaff
+package com.stephentetzlaff.app
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

@@ -1,4 +1,4 @@
-package com.stephentetzlaff.controller
+package com.stephentetzlaff.app.controller
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

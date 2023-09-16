@@ -48,7 +48,7 @@ jib {
         image = "openjdk:17-jdk-alpine"
     }
     container {
-        mainClass = "com.stephentetzlaff.demo.DemoApplicationKt"
+        mainClass = "com.stephentetzlaff.app.DemoApplicationKt"
         jvmFlags = listOf("-Xms512m", "-Xmx512m")
     }
 }
