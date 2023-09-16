@@ -33,11 +33,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: "{{ include "demo.fullname" . }}/health"
+              path: "{{ .Values.deployment.path }}/health"
               port: http
           readinessProbe:
             httpGet:
-              path: "{{ include "demo.fullname" . }}/health"
+              path: "{{ .Values.deployment.path }}/health"
               port: http
           {{- with .Values.resources }}
           resources:

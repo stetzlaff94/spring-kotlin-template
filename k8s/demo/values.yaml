@@ -19,6 +19,9 @@ imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
 
+deployment:
+  path: "example"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
